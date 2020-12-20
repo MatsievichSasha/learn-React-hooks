@@ -30,7 +30,7 @@ function App() {
 
   function increment() {
     /* setCounter(counter + 1) */
-    //если нужно функцию выполнить два раза то в setCounter ложим коллбэк
+    //если нужно функцию выполнить два раза то в setCounter ложим коллбэк принимающее предыдущее состояние 
     setCounter((prev) => prev + 1);
     setCounter((prev) => prev + 1);
   }
