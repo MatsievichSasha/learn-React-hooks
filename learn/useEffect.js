@@ -1,68 +1,76 @@
-import React, { useState } from "react";
-import logo from "./logo.svg";
-import "./App.css";
-
-function computeInitialCounter() {
-  console.log("some Calc");
-  return Math.trunc(Math.random() * 20);
-}
+import React, { useState, useEffect } from "react";
 
 function App() {
-  /*  const [counter, setCounter] = useState(0); */ //  можно вызывать сколько угодно раз
-  //const [counter, setCounter] = useState(computeInitialCounter()); приэтом способе функиция калс будет вызываться каждый раз при баттон
-  const [counter, setCounter] = useState(() => {
-    return computeInitialCounter();
-  });
-
-  const [state, setState] = useState({
-    title: "Count",
-    date: Date.now(),
-  });
-
-  /*  const counterState = useState(0); ///#1
-
-  console.log(counterState[0]); // состояние
-  console.log(counterState[1]); // функция меняющее состояние */
-
-  /*   if(true){
-    const counterState = useState(0) //внитури условия нельзя
-  } */
-
-  function increment() {
-    /* setCounter(counter + 1) */
-    //если нужно функцию выполнить два раза то в setCounter ложим коллбэк
-    setCounter((prev) => prev + 1);
-    setCounter((prev) => prev + 1);
-  }
-
-  function decrement() {
-    setCounter(counter - 1);
-  }
-
-  function updateTitle() {
-    setState((prev) => {
-      return {
-        ...prev,
-        title: "New",
-      };
-    });
-  }
-
-  return (
-    <div>
-      <h1>Счетчик: {counter}</h1>
-      <button onClick={increment} className="btn btn-success">
-        Добавить
-      </button>
-      <button onClick={decrement} className="btn btn-success">
-        Убрать
-      </button>
-      <button onClick={updateTitle} className="">
-        Object
-      </button>
-      <pre>{JSON.stringify(state)}</pre>
-    </div>
-  );
-}
-
-export default App;
+  const [type, setType] = useState('user')
+ 
+ /* useEffect(()=>{
+   console.log('render')
+ }) */
+   const [type, setType] = useState('users')
+   const [data, setData] = useState([])
+   const [pos, setPos] = useState({
+     x:0,
+     y:0
+   }) 
+   /* useEffect(()=>{
+     console.log('render')
+   }) */
+ 
+   /* useEffect(()=>{
+     console.log('type change', type)
+   }, [type])  */// useEffect принимает второй компонент который показыывает от чего должен зависеть useEffect будет вызываться только в том случаее если изменился type
+ 
+ 
+   useEffect(() => {
+     fetch(`https://jsonplaceholder.typicode.com/${type}`)
+       .then(response => response.json())
+       .then(json => setData(json)) //когда прилетает новый json setData вызыввем с ним
+ 
+       return ()=>{
+         console.log('clean type') // пример очистки события, делать отписки и др см. ниже 
+       }
+ 
+     }, [type])
+ 
+   const mouseMoveHanler = event =>{
+     setPos({
+       x:event.clientX,
+       y:event.clientY
+     })
+   }
+ 
+   useEffect(() => {
+     console.log('ComponentDidMount')
+     window.addEventListener('mousemove', /* event =>{
+       setPos({
+         x:event.clientX,
+         y:event.clientY
+       })
+     } */ mouseMoveHanler) // для очистки события можно сделатть очистку 
+ 
+     return () => {
+       window.removeEventListener('mousemove', mouseMoveHanler) //сейчас не работает так как нужно написать другую логику, вызывается тогда когда компонент будет удаляться, см пример  выше
+     }
+   }, [])
+ 
+ 
+ 
+ useEffect(()=>{
+   console.log('type change', type)
+ }, [type]) // useEffect принимает второй компонент который показыывает от чего должен зависеть useEffect будет вызываться только в том случаее если изменился type
+ 
+   return (
+     <div>
+ <h1>Ресурс: {type}</h1>
+ <button onClick={()=>setType('users')}>Пользователи</button>
+ <button onClick={()=>setType('Todo')}>Todo</button>
+ <button onClick={()=>setType('Посты')}>Посты</button>
+       <h1>Ресурс: {type}</h1>
+       <button onClick={() => setType('users')}>Пользователи</button>
+       <button onClick={() => setType('todos')}>Todo</button>
+       <button onClick={() => setType('posts')}>Посты</button>
+       {/* <pre>{JSON.stringify(data, null,2)}</pre> */} {/* выводим прилетевший json */}
+       <pre>{JSON.stringify(pos, null,2)}</pre>  {/* следит за положением мыши */}
+     </div>
+   );
+ }

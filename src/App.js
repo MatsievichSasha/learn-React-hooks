@@ -1,74 +1,41 @@
-import React, { useState, useMemo, useEffect } from "react";
-//есть проблема что есть функция которая задерживает обновление числа, 
-//но даже если мы будем выполнять другую команду которая меняет цвет все равно 
-//будет происходить задержка так как при обновлении стейта задерживающая функция выполнится
-// для оптимизации используется useMemo
+import React, { useState } from "react";
 
-
-function complexCompute(num) { //функция которая будет тормозить наше приложение
-  console.log('complexCompute')
-  let i = 0
-  while (i < 1000000000) {
-    i++
-  }
-  return num * 2
-}
 
 function App() {
-  const [number, setNumber] = useState(37)
+
   const [colored, setColored] = useState(false)
+  const [count, setCount] = useState(1)
 
-/*   const styles = {
-    color: colored ? 'darkred' : 'black' //изменение цвета Н1
-  } */
+  const styles = {
+    color: colored ? 'darkred' : 'black'
+  }
 
-  const styles = useMemo(()=>{
-    return {color: colored ? 'darkred' : 'black' }
-  }, [colored])
+  //Предположим что у нас есть некоторая ф-я которая позволяет на основе count
+  //генеринровать количество элементов которые мы хотим вывести в другой компонент
 
-  /* const computed = complexCompute(number)  *///используем функцию которая будет очень долго вычисляься
+const generateItemsFromAPI = ()=>{
 
-  const computed = useMemo(() => {
-    return complexCompute(number)
-  }, [number])
-
-  //оборачиваем наш код в useMemo мы предаем колбэк которы долже вернуть вычисления 
-  //и дальше нужно указать от чего зависят вычисления в нашем случае от number
-  // Т.е мы закешировали нашу функцию complexCompute
-
-  //второй способ использовать useMemo: допустим мы хотим следить за объектом (любым объектом)
-  //styles в useEffect и по какой то причине он будет говрить что при добавить и убрать
-  //styles тоже менется???? почему??? Идет лишний вызов useEffect. Дело в JS объекты 
-  //хранят в ссылочной системе и когда происходит изменения стейта мы вызываем рендер
-  //и создается новый объект styles а useEffect следит за старым и видит что он изменился(это уже другой объект)
-  //поэтому удобно использовать тут тоже useMemo
+  //мы генериуем нужное кол-во нам элементов мы сгенируем новый массив нужной длины count
+  //нам нужно проиницилизировать элементы для этого с помощью fill заполняем
+  //чем то (пустыми строчками) и с помощью map трансформируем этот масси в новый массив
+  //.map(i=> `Элемент ${i+1}`) но в map индекс идет вторым параметром поэтому 
+  // поэтом ставим _ (это пустая строка) на месте первого параметра .map(_, i=> `Элемент ${i+1}`)
   
-//не стоит все кешировать и использовать только когда это ударяет по производительности
-
-  useEffect(()=>{
-    console.log('Styles changed') 
-  }, [styles])
-
-  function increment() {
-    setNumber((prev) => prev + 1)
-  }
-
-  function decrement() {
-    setNumber(number - 1)
-  }
+  return new Array(count).fill('').map(_, i=> `Элемент ${i+1}`)
+}
+//теперь я хочу эту функция передать как референс для другого компонента
+//создадим компонет ItemsList.js
 
   return (
     <div>
-      <h1 style={styles}>Вычисленное свойство: {computed}</h1>
-      <button onClick={increment} className="btn btn-success">
+      <h1 style={styles}>Количество элементов: {count}</h1>
+      <button onClick={() => setCount(prev => prev + 1)} className="btn btn-success">
         Добавить
       </button>
-      <button onClick={decrement} className="btn btn-success">
+      <button onClick={() => setColored(prev => !prev)} className="btn btn-success">
         Убрать
       </button>
-      <button onClick={() => { setColored(prev => !prev) }} className="btn btn-success">
-        Изменить
-      </button>
+
     </div>
   );
 }
