@@ -1,51 +1,61 @@
-import React, { useState, useContext } from "react";
-//в этом способе мы также создаем контекст отдельно
-/* export const AlertContext = React.createContext(); */
-//мы не будем экспортировать export const AlertContext а будем возвращать результат работы
-//сделаем метод приватным:
-
+import React, { useContext, useReducer } from "react";
+//useReduser позволяет работать со стейтом как и useState только через Reduser
+//когда мы с помощью сторонней функциименяем состояние и это состояние меняется в компоненте
+//
 const AlertContext = React.createContext();
 
 export const useAlert = () => {
   return useContext(AlertContext);
 };
 
-//у нас так и не виден toggle мы можем создать еще один контекст useAlertToggle а после замвернуть в него jsx:
-/* const AlertToggleContext = React.createContext();
+//константы:
 
-export const useAlertToggle = () => {
-  return useContext(AlertToggleContext);
-}; */
-
-//если экспортируемых элементов много то можно воспользоваться объектом
-//то есть третьим способом когда мы эксплотрируем в провайдере не значение а объект
+const SHOW_ALERT = 'show'
+const HIDE_ALERT = 'hide'
 
 
 
+//правила редюсера таковы что эта функция не имеет никаких сайд эфектов она принмает в себя первым
+//параметром state и вторым параметром action делаем свитч кейс по action.type и всегда по
+//default если ни один кейс не сработал возвращаем сам state
 
-//и создадим внутренний компонет сразу экспортирую его в алерт провайдер
-//далее что б мы могли оборачивать любой jsx в этот AlertContext.Provider
-// мы введем параметр children и оборачиваем его <AlertContext.Provider value={}>{children}</AlertContext.Provider>
-
+const reducer = (state, action) => {
+  switch (action.type) {
+    case SHOW_ALERT:
+      return { ...state, visible: true, text: action.text }; //мы возвращаем старый стейт но при этом у него должен быть visiblet:true
+    case HIDE_ALERT:
+      return { ...state, visible: false };
+    default:
+      return state;
+  }
+};
 export const AlertProvider = ({ children }) => {
-  // теперь у нас есть место где мы можем описывать изолированную логику относительно нашего алерт а непрмо в апп
-  //логика:
-  const [alert, setAlert] = useState(false);
-  const toggle = () => setAlert((prey) => !prey);
+  const [state, dispatch] = useReducer(reducer, {
+    visible: false,
+    text: ''
+  }); // данный хук принимает первым параметром сам редюсер. то есть это хук который нанеобходимо создать, вторым параметромпередаем какое то начальное значениенашего state  обычнр это объект
+  //useReducer возвращает ам по сути тоже самое что и useState где первый эл -т массива это state, а второй
+  //фун-я dispatch с помощью которых мы сможем изменять состояние state
+
+  //сформируем две фукнкциикоторые позволяют точечно взаимодействовать со state (вместо toggle)
+  //функция show позволяющая показывать на алерт, что бы изменить state мы должны воспользоваться функцией dispatch
+  // в которую мы передаем объект и это правило в которой мы указываем type
+  // и эти функции так же необходимо экспортировать в провайдере
+  //!!!Прелесть заключается в том что мы теперь можем контролировать текст в этом алерте
+  //передав в show параметр text 
+  
+  const show = text => dispatch({ type: SHOW_ALERT, text });
+  const hide = () => dispatch({ type: HIDE_ALERT }); //эти вещи можно перенести в константы что бы уменьшить риск ошибки
+  
   return (
-/*     <AlertContext.Provider value={alert}>
-      <AlertToggleContext.Provider value={toggle}>
-        {children}
-      </AlertToggleContext.Provider>
-    </AlertContext.Provider> */
-
-    <AlertContext.Provider value={{
-      visible: alert,
-      toggle
-    }}>
-
-        {children}
-
+    <AlertContext.Provider
+      value={{
+        visible: state.visible,
+        text:state.text,
+        show, hide,
+      }}
+    >
+      {children}
     </AlertContext.Provider>
   );
 };
