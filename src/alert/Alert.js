@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import {AlertContext} from './App'
+import {useAlert} from './AlertContext'
 
 export default function Alert() {
   // для того что бы получить состоние необхдимо обернуть <AlertContext.Consumer>
@@ -7,7 +7,8 @@ export default function Alert() {
   //необходимо передать тот контекст которого мы хотим получить состояние
   // для этоо небходимо в его экспортировать в родительском файле 'export const AlertContext = React.createContext()'
 
-  const alert = useContext(AlertContext);
+  /* const alert = useContext(AlertContext); */
+  const alert =useAlert();
 
   if(!alert) return null // если не алерт т.е false мі возвращаем null и ничего не рендерим
   
