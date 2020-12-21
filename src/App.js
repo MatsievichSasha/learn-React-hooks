@@ -84,7 +84,12 @@ function App() {
         type="text"
         /* value={input.value} onChange={input.onChange} */ {...LastNameinput.bind}
       ></input>
-      <button className="btn btn-warning" onClick={()=>input.clear()}> Очистить</button>
+      <button className="btn btn-warning" onClick={()=>{
+        input.clear() 
+        LastNameinput.clear()
+        } 
+        }> 
+        Очистить</button>
       <hr></hr>
       <h1>
         {input.value} {LastNameinput.value}
