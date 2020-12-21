@@ -11,11 +11,17 @@ export const useAlert = () => {
 };
 
 //у нас так и не виден toggle мы можем создать еще один контекст useAlertToggle а после замвернуть в него jsx:
-const AlertToggleContext = React.createContext();
+/* const AlertToggleContext = React.createContext();
 
 export const useAlertToggle = () => {
   return useContext(AlertToggleContext);
-};
+}; */
+
+//если экспортируемых элементов много то можно воспользоваться объектом
+//то есть третьим способом когда мы эксплотрируем в провайдере не значение а объект
+
+
+
 
 //и создадим внутренний компонет сразу экспортирую его в алерт провайдер
 //далее что б мы могли оборачивать любой jsx в этот AlertContext.Provider
@@ -27,10 +33,19 @@ export const AlertProvider = ({ children }) => {
   const [alert, setAlert] = useState(false);
   const toggle = () => setAlert((prey) => !prey);
   return (
-    <AlertContext.Provider value={alert}>
+/*     <AlertContext.Provider value={alert}>
       <AlertToggleContext.Provider value={toggle}>
         {children}
       </AlertToggleContext.Provider>
+    </AlertContext.Provider> */
+
+    <AlertContext.Provider value={{
+      visible: alert,
+      toggle
+    }}>
+
+        {children}
+
     </AlertContext.Provider>
   );
 };
